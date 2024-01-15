@@ -13,9 +13,10 @@ RoxygenNote: 7.2.3
 LinkingTo: 
     Rcpp,
     RcppEigen,
-    StanHeaders,
     RcppParallel,
-    integratecpp,
+    BH,
+    sitmo,
+    dqrng,
     SLSAGARCH
 Imports:
     doFuture,

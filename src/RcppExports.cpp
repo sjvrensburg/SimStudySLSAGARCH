@@ -21,9 +21,24 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// parallel_random_matrix
+Rcpp::NumericMatrix parallel_random_matrix(const unsigned int n, const unsigned int m, const unsigned int ncores, const unsigned int seed);
+RcppExport SEXP _SimStudySLSAGARCH_parallel_random_matrix(SEXP nSEXP, SEXP mSEXP, SEXP ncoresSEXP, SEXP seedSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const unsigned int >::type n(nSEXP);
+    Rcpp::traits::input_parameter< const unsigned int >::type m(mSEXP);
+    Rcpp::traits::input_parameter< const unsigned int >::type ncores(ncoresSEXP);
+    Rcpp::traits::input_parameter< const unsigned int >::type seed(seedSEXP);
+    rcpp_result_gen = Rcpp::wrap(parallel_random_matrix(n, m, ncores, seed));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_SimStudySLSAGARCH_rcpp_hello_world", (DL_FUNC) &_SimStudySLSAGARCH_rcpp_hello_world, 0},
+    {"_SimStudySLSAGARCH_parallel_random_matrix", (DL_FUNC) &_SimStudySLSAGARCH_parallel_random_matrix, 4},
     {NULL, NULL, 0}
 };
 

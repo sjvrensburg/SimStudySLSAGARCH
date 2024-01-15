@@ -5,3 +5,7 @@ rcpp_hello_world <- function() {
     .Call(`_SimStudySLSAGARCH_rcpp_hello_world`)
 }
 
+parallel_random_matrix <- function(n, m, ncores, seed) {
+    .Call(`_SimStudySLSAGARCH_parallel_random_matrix`, n, m, ncores, seed)
+}
+

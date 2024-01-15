@@ -1,5 +1,5 @@
-
 #include <Rcpp.h>
+#include <SLSAGARCH_RcppExports.h>
 using namespace Rcpp;
 
 // [[Rcpp::export]]

@@ -1,0 +1,39 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "~/R/x86_64-pc-linux-gnu-library/4.3/cpp11/**",
+                "~/R/x86_64-pc-linux-gnu-library/4.3/progress/**",
+                "~/R/x86_64-pc-linux-gnu-library/4.3/Rcpp/**",
+                "~/R/x86_64-pc-linux-gnu-library/4.3/RcppArmadillo/**",
+                "~/R/x86_64-pc-linux-gnu-library/4.3/RcppCCTZ/**",
+                "~/R/x86_64-pc-linux-gnu-library/4.3/RcppDate/**",
+                "~/R/x86_64-pc-linux-gnu-library/4.3/RcppDE/**",
+                "~/R/x86_64-pc-linux-gnu-library/4.3/RcppDist/**",
+                "~/R/x86_64-pc-linux-gnu-library/4.3/RcppEigen/**",
+                "~/R/x86_64-pc-linux-gnu-library/4.3/RcppNumerical/**",
+                "~/R/x86_64-pc-linux-gnu-library/4.3/RcppParallel/**",
+                "~/R/x86_64-pc-linux-gnu-library/4.3/RcppProgress/**",
+                "~/R/x86_64-pc-linux-gnu-library/4.3/RcppRoll/**",
+                "~/R/x86_64-pc-linux-gnu-library/4.3/RcppThread/**",
+                "~/R/x86_64-pc-linux-gnu-library/4.3/RcppTN/**",
+                "~/R/x86_64-pc-linux-gnu-library/4.3/RcppTOML/**",
+                "~/R/x86_64-pc-linux-gnu-library/4.3/StanHeaders/**",
+                "~/R/x86_64-pc-linux-gnu-library/4.3/strucchangeRcpp/**",
+                "~/R/x86_64-pc-linux-gnu-library/4.3/TMB/**",
+                "~/R/x86_64-pc-linux-gnu-library/4.3/integratecpp/**",
+                "~/R/x86_64-pc-linux-gnu-library/4.3/SLSAGARCH/**",
+                "~/R/x86_64-pc-linux-gnu-library/4.3/sitmo/**",
+                "~/R/x86_64-pc-linux-gnu-library/4.3/dqrng/**",
+                "/usr/share/R/include"
+            ],
+            "defines": [],
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "linux-clang-x64"
+        }
+    ],
+    "version": 4
+}
