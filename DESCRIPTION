@@ -1,0 +1,29 @@
+Package: SimStudySLSAGARCH
+Title: Simulation Study For Score-Like Smooth AGARCH(1, 1) Model
+Version: 0.0.0.9000
+Authors@R: 
+    person("Stéfan", "Janse van Rensburg", , "stefanj@mandala.ac.za", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-0749-2277"))
+Description:
+    Simulation study to assess the finite sample properties of ML estimations of the newly proposed SLS-AGARCH(1, 1) model.
+License: GPL (>= 3)
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
+LinkingTo: 
+    Rcpp,
+    RcppEigen,
+    StanHeaders,
+    RcppParallel,
+    integratecpp,
+    SLSAGARCH
+Imports:
+    doFuture,
+    foreach,
+    future,
+    Rcpp,
+    RcppParallel,
+    rsimsum
+SystemRequirements:
+    C++14, GNU make
+RdMacros: Rdpack
