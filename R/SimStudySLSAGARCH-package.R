@@ -1,7 +1,8 @@
 ## usethis namespace: start
-#' @importFrom Rcpp sourceCpp
 #' @import RcppEigen
 #' @import SLSAGARCH
+#' @importFrom Rcpp sourceCpp
+#' @importFrom RcppParallel RcppParallelLibs
 #' @useDynLib SimStudySLSAGARCH, .registration = TRUE
 ## usethis namespace: end
 NULL

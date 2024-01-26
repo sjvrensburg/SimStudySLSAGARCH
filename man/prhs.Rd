@@ -20,7 +20,7 @@ Simulates \code{n} observations from \code{m} independent hyperbolic secant
 distributed random variables.
 }
 \details{
-Note that \code{seed} works in cojunction with \code{numThreads}. Therefore,
+IMPORTANT: \code{seed} works in cojunction with \code{numThreads}. Therefore,
 setting \code{seed = 42} and \code{numThreads = 2} will produce differents
 results compared to setting \code{seed = 42} and \code{numThreads = 4}.
 }

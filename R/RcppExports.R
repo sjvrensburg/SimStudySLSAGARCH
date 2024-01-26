@@ -12,10 +12,12 @@
 #' @param numThreads Number of threads for running code in parallel
 #'
 #' @details
-#' Note that `seed` works in cojunction with `numThreads`. Therefore,
+#' IMPORTANT: `seed` works in cojunction with `numThreads`. Therefore,
 #' setting `seed = 42` and `numThreads = 2` will produce differents 
 #' results compared to setting `seed = 42` and `numThreads = 4`.
 #' 
+#' @name prhs
+#' @export prhs
 prhs <- function(n, m, seed, numThreads = -1L) {
     .Call(`_SimStudySLSAGARCH_prhs`, n, m, seed, numThreads)
 }

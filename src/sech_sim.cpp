@@ -43,10 +43,12 @@ struct SechInnovSim : public Worker {
 //' @param numThreads Number of threads for running code in parallel
 //'
 //' @details
-//' Note that `seed` works in cojunction with `numThreads`. Therefore,
+//' IMPORTANT: `seed` works in cojunction with `numThreads`. Therefore,
 //' setting `seed = 42` and `numThreads = 2` will produce differents 
 //' results compared to setting `seed = 42` and `numThreads = 4`.
 //' 
+//' @name prhs
+//' @export prhs
 // [[Rcpp::export]]
 NumericMatrix prhs(
     const std::size_t n, const std::size_t m,

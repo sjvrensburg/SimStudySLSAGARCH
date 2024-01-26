@@ -24,5 +24,5 @@ Imports:
     rsimsum,
     SLSAGARCH
 SystemRequirements:
-    C++14, GNU make
+    C++17, GNU make
 RdMacros: Rdpack
