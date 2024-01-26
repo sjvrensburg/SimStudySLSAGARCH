@@ -1,9 +1,8 @@
 #include <random>
-#include <RcppEigen.h>
+#include <Rcpp.h>
 #include <RcppParallel.h>
 #include <pcg_random.hpp>
 #include <boost/math/constants/constants.hpp>
-#include <SLSAGARCH_RcppExports.h>
 
 using std::log;
 using std::tan;
@@ -33,13 +32,28 @@ struct SechInnovSim : public Worker {
   }
 };
 
+//' Simulate From a Hyperbolic Secant Distribution in Parallel
+//'
+//' Simulates `n` observations from `m` independent hyperbolic secant
+//' distributed random variables.
+//'
+//' @param n Number of observations to generate each replication
+//' @param m Number of replications
+//' @param seed Seed for the rng
+//' @param numThreads Number of threads for running code in parallel
+//'
+//' @details
+//' Note that `seed` works in cojunction with `numThreads`. Therefore,
+//' setting `seed = 42` and `numThreads = 2` will produce differents 
+//' results compared to setting `seed = 42` and `numThreads = 4`.
+//' 
 // [[Rcpp::export]]
-NumericMatrix parallelRhs(
+NumericMatrix prhs(
     const std::size_t n, const std::size_t m,
-    const unsigned int seed) {
+    const unsigned int seed, const int numThreads = -1) {
+  const int grainSize = std::abs<int>(m / numThreads);
   NumericMatrix res(n, m);
   SechInnovSim sim(res, seed);
-  RcppParallel::parallelFor(0, m, sim);
+  RcppParallel::parallelFor(0, m, sim, grainSize, numThreads);
   return res;
 }
-
