@@ -27,7 +27,8 @@
                 "~/R/x86_64-pc-linux-gnu-library/4.3/SLSAGARCH/**",
                 "~/R/x86_64-pc-linux-gnu-library/4.3/sitmo/**",
                 "~/R/x86_64-pc-linux-gnu-library/4.3/dqrng/**",
-                "/usr/share/R/include"
+                "/usr/share/R/include",
+                "/home/stefan/Documents/R_Packages/SLSAGARCH/inst/include"
             ],
             "defines": [],
             "cStandard": "c17",
