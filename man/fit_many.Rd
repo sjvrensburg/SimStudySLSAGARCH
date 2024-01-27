@@ -44,6 +44,11 @@ a dataframe
 \description{
 Fit Many
 }
+\details{
+This function creates a \code{progressor} that signals progress updates. The user
+can run the function inside of a \code{with_progress} function to show a progress
+bar.
+}
 \examples{
 # Create the model specification
 spec <- specification(type = "S")
@@ -54,4 +59,6 @@ param0[1] <- SLSAGARCH:::unconditional.specification(spec, param0)
 # Simulate 10000 series, each of length 500
 Y <- dgp(spec, param0, n = 500, R = 10000, seed = 20240127, nthreads = 10L)
 fit_many(spec, param0, Y, strategy = "multisession", nchunks = 100)
+# if you want to see a progress bar...
+progressr::with_progress(fit_many(spec, param0, Y, strategy = "multisession", nchunks = 100))
 }

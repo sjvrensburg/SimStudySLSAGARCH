@@ -23,7 +23,9 @@ Imports:
     Rcpp,
     RcppParallel,
     rsimsum,
-    SLSAGARCH
+    SLSAGARCH,
+    progressr,
+    cli
 SystemRequirements:
     C++14, GNU make
 RdMacros: Rdpack

@@ -117,6 +117,11 @@ fit <- function(spec, param, y, se_type = "QMLE", ...) {
 #'
 #' @return a dataframe
 #'
+#' @details
+#' This function creates a `progressor` that signals progress updates. The user
+#' can run the function inside of a `with_progress` function to show a progress
+#' bar.
+#'
 #' @importFrom doFuture %dofuture%
 #' @importFrom foreach foreach
 #' @importFrom foreach %do%
@@ -132,6 +137,8 @@ fit <- function(spec, param, y, se_type = "QMLE", ...) {
 #' # Simulate 10000 series, each of length 500
 #' Y <- dgp(spec, param0, n = 500, R = 10000, seed = 20240127, nthreads = 10L)
 #' fit_many(spec, param0, Y, strategy = "multisession", nchunks = 100)
+#' # if you want to see a progress bar...
+#' progressr::with_progress(fit_many(spec, param0, Y, strategy = "multisession", nchunks = 100))
 fit_many <- function(spec, param, ymat, se_type = "QMLE",
                      label = sim_lab(
                        n = nrow(ymat), lambda = param["lambda"],
@@ -146,20 +153,23 @@ fit_many <- function(spec, param, ymat, se_type = "QMLE",
     )
   }
   chunks <- chunk(1:ncol(ymat), nchunks)
+  p <- progressr::progressor(steps = length(chunks))
   out <- foreach::foreach(
-    i = 1:nchunks, .combine = "rbind", .inorder = TRUE, .verbose = verbose,
+    i = 1:nchunks, .combine = "rbind", .inorder = FALSE, .verbose = verbose,
     .options.future = list(seed = TRUE), .errorhandling = .errorhandling
   ) %dofuture% {
     idx <- chunks[[i]]
     ymat_i <- ymat[, idx]
     out_i <- foreach::foreach(
-      j = 1:ncol(ymat_i), .combine = "rbind", .inorder = TRUE,
+      j = 1:ncol(ymat_i), .combine = "rbind", .inorder = FALSE,
       .options.future = list(seed = TRUE)) %do% {
         res <- fit(spec, param, ymat_i[, j], se_type, ...)
         res$sample <- idx[j]
         res$nobs <- nrow(ymat_i)
         res
       }
+    p(message = sprintf("Completed chunk %d", i))
+    out_i
   }
   cbind("Simulation" = label, out)
 }
