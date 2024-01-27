@@ -44,3 +44,14 @@ a dataframe
 \description{
 Fit Many
 }
+\examples{
+# Create the model specification
+spec <- specification(type = "S")
+# True parameter values
+param0 <- c(h0 = 1, omega = 0.1, alpha = 0.075, beta = 0.85, lambda = 1, rho = 0.75)
+#   Set the initial conditional volatility equal to the unconditional volatility.
+param0[1] <- SLSAGARCH:::unconditional.specification(spec, param0)
+# Simulate 10000 series, each of length 500
+Y <- dgp(spec, param0, n = 500, R = 10000, seed = 20240127, nthreads = 10L)
+fit_many(spec, param0, Y, strategy = "multisession", nchunks = 100)
+}

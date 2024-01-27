@@ -15,6 +15,14 @@
 #' @export
 #'
 #' @examples
+#' # Create the model specification
+#' spec <- specification(type = "S")
+#' # True parameter values
+#' param0 <- c(h0 = 1, omega = 0.1, alpha = 0.075, beta = 0.85, lambda = 1, rho = 0.75)
+#' #   Set the initial conditional volatility equal to the unconditional volatility.
+#' param0[1] <- SLSAGARCH:::unconditional.specification(spec, param0)
+#' # Simulate 10000 series, each of length 500
+#' dgp(spec, param0, n = 500, R = 10000, seed = 20240127, nthreads = 10L)
 dgp <- function(spec, param, n, R, seed, burn.in = 25000L, nthreads = 4L) {
   # Simulate the innovations
   z <- prhs(n = n + burn.in, m = R, seed = seed,
@@ -58,21 +66,39 @@ dgp <- function(spec, param, n, R, seed, burn.in = 25000L, nthreads = 4L) {
 #' @export
 #'
 #' @examples
+#' # Create the model specification
+#' spec <- specification(type = "S")
+#' # True parameter values
+#' param0 <- c(h0 = 1, omega = 0.1, alpha = 0.075, beta = 0.85, lambda = 1, rho = 0.75)
+#' #   Set the initial conditional volatility equal to the unconditional volatility.
+#' param0[1] <- SLSAGARCH:::unconditional.specification(spec, param0)
+#' # Simulate 10000 series, each of length 500
+#' Y <- dgp(spec, param0, n = 500, R = 10000, seed = 20240127, nthreads = 10L)
+#' fit(spec, param0, Y[, 1])
 fit <- function(spec, param, y, se_type = "QMLE", ...) {
-  # Estimate the model
-  est_model <- SLSAGARCH::estimate(spec, x = y, ...)
+  status <- rep(-1, spec$k)
+  elapsed <- parhat <- se <- rep(NA, spec$k)
 
-  # Extract the coefficients and standard errors
-  parhat <- SLSAGARCH:::coef.fitted(est_model)
-  se <- SLSAGARCH:::vcov.fitted(est_model, type = se_type) |>
-    diag() |>
-    sqrt()
+  try(expr = {
+    # Estimate the model
+    est_model <- SLSAGARCH::estimate(spec, x = y, ...)
+
+    # Status
+    status <- rep(est_model$status, spec$k)
+    elapsed <- rep(est_model$elapsed, spec$k)
+
+    # Extract the coefficients and standard errors
+    parhat <- SLSAGARCH:::coef.fitted(est_model)
+    se <- SLSAGARCH:::vcov.fitted(est_model, type = se_type) |>
+      diag() |>
+      sqrt()
+  })
 
   # Create the data frame
   dplyr::tibble(
-    status = est_model$status,
-    par = spec$names, true = param,
-    est = parhat, se = se) |>
+    status = status, par = spec$names,
+    true = param, est = parhat, se = se,
+    elapsed = elapsed) |>
     dplyr::filter(par != "h0")
 }
 
@@ -97,6 +123,15 @@ fit <- function(spec, param, y, se_type = "QMLE", ...) {
 #' @export
 #'
 #' @examples
+#' # Create the model specification
+#' spec <- specification(type = "S")
+#' # True parameter values
+#' param0 <- c(h0 = 1, omega = 0.1, alpha = 0.075, beta = 0.85, lambda = 1, rho = 0.75)
+#' #   Set the initial conditional volatility equal to the unconditional volatility.
+#' param0[1] <- SLSAGARCH:::unconditional.specification(spec, param0)
+#' # Simulate 10000 series, each of length 500
+#' Y <- dgp(spec, param0, n = 500, R = 10000, seed = 20240127, nthreads = 10L)
+#' fit_many(spec, param0, Y, strategy = "multisession", nchunks = 100)
 fit_many <- function(spec, param, ymat, se_type = "QMLE",
                      label = sim_lab(
                        n = nrow(ymat), lambda = param["lambda"],
