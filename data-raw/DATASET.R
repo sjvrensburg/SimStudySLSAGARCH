@@ -1,5 +1,3 @@
-## code to prepare `DATASET` dataset goes here
-
 # Specification
 sls_sech_spec <- SLSAGARCH::specification(type = "S")
 usethis::use_data(sls_sech_spec, overwrite = TRUE)
