@@ -52,4 +52,4 @@ rsconnect/
 .vscode/
 
 # Ignore large data files
-data/scenario_*.rd
+data/scenario_*.rda
