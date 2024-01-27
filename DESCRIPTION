@@ -29,3 +29,6 @@ Imports:
 SystemRequirements:
     C++14, GNU make
 RdMacros: Rdpack
+Depends: 
+    R (>= 2.10)
+LazyData: true
