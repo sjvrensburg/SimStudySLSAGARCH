@@ -16,6 +16,7 @@ LinkingTo:
     BH,
     dqrng
 Imports:
+    dplyr,
     doFuture,
     foreach,
     future,
@@ -24,5 +25,5 @@ Imports:
     rsimsum,
     SLSAGARCH
 SystemRequirements:
-    C++17, GNU make
+    C++14, GNU make
 RdMacros: Rdpack
