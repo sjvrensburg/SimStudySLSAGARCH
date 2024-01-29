@@ -1,0 +1,28 @@
+---
+title: "Finite Sample Porperties of Maximum Likelihood Estimators of SLS-AGARCH(1, 1) Model Parameters"
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Lood the da
+
+```{r setup, echo=TRUE, cache=TRUE}
+library(SLSAGARCH)
+library(SimStudySLSAGARCH)
+
+# Load the simulated data
+data("scenario_01") # lambda = 0.0, rho = 0.0
+data("scenario_02") # lambda = 0.5, rho = 0.0
+data("scenario_03") # lambda = 1.0, rho = 0.0
+data("scenario_04") # lambda = 0.0, rho = 0.25
+data("scenario_05") # lambda = 0.5, rho = 0.25
+data("scenario_06") # lambda = 1.0, rho = 0.25
+data("scenario_07") # lambda = 0.0, rho = 0.75
+data("scenario_08") # lambda = 0.5, rho = 0.75
+data("scenario_09") # lambda = 1.0, rho = 0.75
+```

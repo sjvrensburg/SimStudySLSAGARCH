@@ -25,10 +25,12 @@ Imports:
     rsimsum,
     SLSAGARCH,
     progressr,
-    cli
+    cli,
+    fst
 SystemRequirements:
     C++14, GNU make
 RdMacros: Rdpack
 Depends: 
     R (>= 2.10)
 LazyData: true
+Config/Needs/website: rmarkdown
