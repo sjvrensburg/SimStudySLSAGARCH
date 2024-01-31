@@ -97,7 +97,7 @@ fit <- function(spec, param, y, se_type = "QMLE", ...) {
   # Create the data frame
   dplyr::tibble(
     status = status, par = spec$names,
-    true = param, est = parhat, se = se,
+    true = as.vector(unlist(param)), est = parhat, se = se,
     elapsed = elapsed) |>
     dplyr::filter(par != "h0")
 }
@@ -144,7 +144,7 @@ fit_many <- function(spec, param, ymat, se_type = "QMLE",
                        n = nrow(ymat), lambda = param["lambda"],
                        rho = param["rho"]),
                      strategy = "sequential", nchunks = 100,
-                     .errorhandling = "stop", verbose = TRUE, ...) {
+                     .errorhandling = "remove", verbose = FALSE, ...) {
   if (!is.null(strategy)) {
     switch(strategy,
            "sequential" = future::plan(strategy = future::sequential),
@@ -154,6 +154,7 @@ fit_many <- function(spec, param, ymat, se_type = "QMLE",
   }
   chunks <- chunk(1:ncol(ymat), nchunks)
   p <- progressr::progressor(steps = length(chunks))
+  p(amount = 0)
   out <- foreach::foreach(
     i = 1:nchunks, .combine = "rbind", .inorder = FALSE, .verbose = verbose,
     .options.future = list(seed = TRUE), .errorhandling = .errorhandling

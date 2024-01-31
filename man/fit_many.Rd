@@ -12,8 +12,8 @@ fit_many(
   label = sim_lab(n = nrow(ymat), lambda = param["lambda"], rho = param["rho"]),
   strategy = "sequential",
   nchunks = 100,
-  .errorhandling = "stop",
-  verbose = TRUE,
+  .errorhandling = "remove",
+  verbose = FALSE,
   ...
 )
 }

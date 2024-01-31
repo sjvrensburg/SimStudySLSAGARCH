@@ -1,5 +1,7 @@
 ---
-title: "Finite Sample Porperties of Maximum Likelihood Estimators of SLS-AGARCH(1, 1) Model Parameters"
+title: "Finite Sample Porperties of Maximum Likelihood Estimators of SLS-AGARCH(1,
+  1) Model Parameters"
+output: pdf_document
 ---
 
 ```{r, include = FALSE}
@@ -9,20 +11,63 @@ knitr::opts_chunk$set(
 )
 ```
 
-# Lood the da
-
-```{r setup, echo=TRUE, cache=TRUE}
+```{r setup, echo=FALSE, cache=FALSE}
 library(SLSAGARCH)
 library(SimStudySLSAGARCH)
-
-# Load the simulated data
-data("scenario_01") # lambda = 0.0, rho = 0.0
-data("scenario_02") # lambda = 0.5, rho = 0.0
-data("scenario_03") # lambda = 1.0, rho = 0.0
-data("scenario_04") # lambda = 0.0, rho = 0.25
-data("scenario_05") # lambda = 0.5, rho = 0.25
-data("scenario_06") # lambda = 1.0, rho = 0.25
-data("scenario_07") # lambda = 0.0, rho = 0.75
-data("scenario_08") # lambda = 0.5, rho = 0.75
-data("scenario_09") # lambda = 1.0, rho = 0.75
+library(fst)
+library(dplyr)
+library(rsimsum)
 ```
+
+# Simulation Design
+
+The package contains data simulated from nine different SLS-AGARCH(1, 1) DGPs with hyperbolic secant distributed innovations. The parameters of the nine models are stored in the data frame `parameters`.
+
+```{r}
+data("sls_sech_spec")
+data("parameters")
+
+parameters
+```
+
+We will refer to the different DGPs as scenarios. For each scenario, 10000 realisations of length $n \in \{ 250, 500, 750, 1000, 1250, 2500 \}$ were generated. The parameters $\lambda$ and $rho$ vary across scenarios, whereas $h_0 = 1,$ $\alpha = 0.075$ and $beta = 0.85$ for all DGPs. The value of $omega = 1 - P$ across all scenarios, such that the unconditional variance of each DGP is one.
+
+# Estimation
+
+## Scenario 1: $\omega = `r parameters$omega[1]`,\ \lambda = `r parameters$lambda[1]`, \ \rho = `r parameters$rho[1]`$
+
+Load the data for Scenario 1:
+```{r importScenario01}
+scenario_01 <- scenario_files(
+  path = "scenario_01.fst") |>
+  fst::read.fst()
+scenario_01 <- split.data.frame(
+  scenario_01, f = scenario_01$n)
+# Convert to matrices for use with `fit_many`
+scenario_01 <- lapply(scenario_01, function(x) {
+  as.matrix(x[, -1 * 1:3])
+})
+```
+
+We will now apply `fit_many` to estimate an SLS-AGARCH(1, 1) model for each realisation.
+
+```{r estimateScenario01}
+estimates_01 <- foreach(mat = scenario_01, .combine = "bind_rows") %do% {
+  progressr::with_progress(
+    fit_many(sls_sech_spec, param = as.vector(parameters[1, ]), ymat = mat, strategy = "multisession")
+  )
+}
+estimates_01$true <- estimates_01$true |> unlist()
+estimates_01 |>
+  dplyr::as_tibble() |>
+  dplyr::mutate(
+    Simulation = as.factor(Simulation),
+    par = as.factor(par)) |>
+  dplyr::rename(
+    "Estimate" = "est", "Parameter" = "par",
+    "True" = "true", "SE" = "se") |>
+  as.data.frame() |>
+  fst::write_fst(path = "inst/extdata/estimates_01.fst", compress = 25)
+rm(list = c("scenario_01", "estimates_01"))
+```
+

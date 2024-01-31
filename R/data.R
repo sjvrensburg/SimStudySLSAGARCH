@@ -19,92 +19,22 @@
 #' @source Own calculations.
 "parameters"
 
-#' Scenario 1
+#' Scenarios
 #'
-#' Data for the case where \eqn{\lambda = 0,} \eqn{\rho = 0} and
-#' \eqn{n \in \{250, 500, 750, 1000, 1250, 2500 \},} i.e.,
-#' the 1st row of `parameters`.
+#' Lists files that store simulated data.
 #'
-#' @format A list of matrices that contain the simulated observations.
-#' @source Own calculations.
-"scenario_01"
-
-#' Scenario 2
+#' @param path file name
 #'
-#' Data for the case where \eqn{\lambda = 0.5,} \eqn{\rho = 0} and
-#' \eqn{n \in \{250, 500, 750, 1000, 1250, 2500 \},} i.e.,
-#' the 2nd row of `parameters`.
+#' @return either a vector of file names or the full path to a particular file
+#' @export
 #'
-#' @format A list of matrices that contain the simulated observations.
-#' @source Own calculations.
-"scenario_02"
-
-#' Scenario 3
-#'
-#' Data for the case where \eqn{\lambda = 1,} \eqn{\rho = 0} and
-#' \eqn{n \in \{250, 500, 750, 1000, 1250, 2500 \},} i.e.,
-#' the 3rd row of `parameters`.
-#'
-#' @format A list of matrices that contain the simulated observations.
-#' @source Own calculations.
-"scenario_03"
-
-#' Scenario 4
-#'
-#' Data for the case where \eqn{\lambda = 0,} \eqn{\rho = 0.25} and
-#' \eqn{n \in \{250, 500, 750, 1000, 1250, 2500 \},} i.e.,
-#' the 4th row of `parameters`.
-#'
-#' @format A list of matrices that contain the simulated observations.
-#' @source Own calculations.
-"scenario_04"
-
-#' Scenario 5
-#'
-#' Data for the case where \eqn{\lambda = 0.5,} \eqn{\rho = 0.25} and
-#' \eqn{n \in \{250, 500, 750, 1000, 1250, 2500 \},} i.e.,
-#' the 5th row of `parameters`.
-#'
-#' @format A list of matrices that contain the simulated observations.
-#' @source Own calculations.
-"scenario_05"
-
-#' Scenario 6
-#'
-#' Data for the case where \eqn{\lambda = 1,} \eqn{\rho = 0.25} and
-#' \eqn{n \in \{250, 500, 750, 1000, 1250, 2500 \},} i.e.,
-#' the 6th row of `parameters`.
-#'
-#' @format A list of matrices that contain the simulated observations.
-#' @source Own calculations.
-"scenario_06"
-
-#' Scenario 7
-#'
-#' Data for the case where \eqn{\lambda = 0,} \eqn{\rho = 0.75} and
-#' \eqn{n \in \{250, 500, 750, 1000, 1250, 2500 \},} i.e.,
-#' the 7th row of `parameters`.
-#'
-#' @format A list of matrices that contain the simulated observations.
-#' @source Own calculations.
-"scenario_07"
-
-#' Scenario 8
-#'
-#' Data for the case where \eqn{\lambda = 0.5,} \eqn{\rho = 0.75} and
-#' \eqn{n \in \{250, 500, 750, 1000, 1250, 2500 \},} i.e.,
-#' the 8th row of `parameters`.
-#'
-#' @format A list of matrices that contain the simulated observations.
-#' @source Own calculations.
-"scenario_08"
-
-#' Scenario 9
-#'
-#' Data for the case where \eqn{\lambda = 1,} \eqn{\rho = 0.75} and
-#' \eqn{n \in \{250, 500, 750, 1000, 1250, 2500 \},} i.e.,
-#' the 9th row of `parameters`.
-#'
-#' @format A list of matrices that contain the simulated observations.
-#' @source Own calculations.
-"scenario_09"
+#' @examples
+#' scenario_files()
+#' scenario_files(path = "scenario_01.fst")
+scenario_files <- function(path = NULL) {
+  if (is.null(path)) {
+    dir(system.file("extdata", package = "SimStudySLSAGARCH"))
+  } else {
+    system.file("extdata", path, package = "SimStudySLSAGARCH", mustWork = TRUE)
+  }
+}
