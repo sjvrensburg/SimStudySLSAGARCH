@@ -60,6 +60,8 @@ dgp <- function(spec, param, n, R, seed, burn.in = 25000L, nthreads = 4L) {
 #' @param param true parameters of the DGP
 #' @param y simulated observations
 #' @param se_type method for calculating the standard errors
+#' @param tiktak boolean indicating whether to use `SLSAGARCH::tiktak`
+#' @param tiktak_opts list of options to pass to `SLSAGARCH::tiktak`
 #' @param ... additional arguments passed to `SLSAGARCH::estimate`
 #'
 #' @return A tibble with estimates
@@ -75,13 +77,30 @@ dgp <- function(spec, param, n, R, seed, burn.in = 25000L, nthreads = 4L) {
 #' # Simulate 10000 series, each of length 500
 #' Y <- dgp(spec, param0, n = 500, R = 10000, seed = 20240127, nthreads = 10L)
 #' fit(spec, param0, Y[, 1])
-fit <- function(spec, param, y, se_type = "QMLE", ...) {
+fit <- function(spec, param, y, se_type = "QMLE", tiktak = TRUE,
+                tiktak_opts = list(
+                  n = 250L, N = 10L, thin = 5L,
+                  reltol = 1e-03,
+                  lead_solver_opts = SLSAGARCH::nloptr_slsqp_options(maxtime = 0.35),
+                  lag_solver_opts = SLSAGARCH::nloptr_slsqp_options(maxtime = 0.35 / 2),
+                  a = 2, b = 2.5, m = 25L, verbose = FALSE),
+                ...) {
   status <- rep(-1, spec$k)
   elapsed <- parhat <- se <- rep(NA, spec$k)
 
   try(expr = {
     # Estimate the model
-    est_model <- SLSAGARCH::estimate(spec, x = y, ...)
+    if (tiktak) {
+      est_model <- SLSAGARCH::tiktak(
+        y = y, spec = spec, n = tiktak_opts$n, N = tiktak_opts$N,
+        thin = tiktak_opts$thin, reltol = tiktak_opts$reltol,
+        lead_solver_opts = tiktak_opts$lead_solver_opts,
+        lag_solver_opts = tiktak_opts$lag_solver_opts,
+        a = tiktak_opts$a, b = tiktak_opts$b, m = tiktak_opts$m,
+        verbose = tiktak_opts$verbose, ...)
+    } else {
+      est_model <- SLSAGARCH::estimate(spec, x = y, ...)
+    }
 
     # Status
     status <- rep(est_model$status, spec$k)
@@ -108,6 +127,8 @@ fit <- function(spec, param, y, se_type = "QMLE", ...) {
 #' @param param true parameters of the DGP
 #' @param ymat matrix of simulated observations
 #' @param se_type method for calculating the standard errors
+#' @param tiktak boolean indicating whether to use `SLSAGARCH::tiktak`
+#' @param tiktak_opts list of options to pass to `SLSAGARCH::tiktak`
 #' @param label a label used to identify the simulation
 #' @param strategy evaluation function (or name of it) to use for resolving a future. If NULL, then the current strategy is returned.
 #' @param nchunks the number of realisations to pass to each thread
@@ -139,7 +160,13 @@ fit <- function(spec, param, y, se_type = "QMLE", ...) {
 #' fit_many(spec, param0, Y, strategy = "multisession", nchunks = 100)
 #' # if you want to see a progress bar...
 #' progressr::with_progress(fit_many(spec, param0, Y, strategy = "multisession", nchunks = 100))
-fit_many <- function(spec, param, ymat, se_type = "QMLE",
+fit_many <- function(spec, param, ymat, se_type = "QMLE", tiktak = TRUE,
+                     tiktak_opts = list(
+                       n = 250L, N = 10L, thin = 5L,
+                       reltol = 1e-03,
+                       lead_solver_opts = SLSAGARCH::nloptr_slsqp_options(maxtime = 0.35),
+                       lag_solver_opts = SLSAGARCH::nloptr_slsqp_options(maxtime = 0.35 / 2),
+                       a = 2, b = 2.5, m = 25L, verbose = FALSE),
                      label = sim_lab(
                        n = nrow(ymat), lambda = param["lambda"],
                        rho = param["rho"]),
@@ -164,7 +191,8 @@ fit_many <- function(spec, param, ymat, se_type = "QMLE",
     out_i <- foreach::foreach(
       j = 1:ncol(ymat_i), .combine = "rbind", .inorder = FALSE,
       .options.future = list(seed = TRUE)) %do% {
-        res <- fit(spec, param, ymat_i[, j], se_type, ...)
+        res <- fit(spec, param, ymat_i[, j], se_type,
+                   tiktak = tiktak, tiktak_opts = tiktak_opts, ...)
         res$sample <- idx[j]
         res$nobs <- nrow(ymat_i)
         res

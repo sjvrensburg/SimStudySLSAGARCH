@@ -7,6 +7,11 @@
 estimate_scenario(
   spec = SLSAGARCH::specification(type = "S"),
   se_type = "QMLE",
+  tiktak = TRUE,
+  tiktak_opts = list(n = 250L, N = 10L, thin = 5L, reltol = 0.001, lead_solver_opts =
+    SLSAGARCH::nloptr_slsqp_options(maxtime = 0.35), lag_solver_opts =
+    SLSAGARCH::nloptr_slsqp_options(maxtime = 0.35/2), a = 2, b = 2.5, m = 25L, verbose =
+    FALSE),
   strategy = "multisession",
   scenario = 1L,
   ...
@@ -16,6 +21,10 @@ estimate_scenario(
 \item{spec}{model specification}
 
 \item{se_type}{type of standard errors, default is "QLIKE"}
+
+\item{tiktak}{boolean indicating whether to use \code{SLSAGARCH::tiktak}}
+
+\item{tiktak_opts}{list of options to pass to \code{SLSAGARCH::tiktak}}
 
 \item{strategy}{strategy for parallel execution, default is "multisession"}
 

@@ -4,7 +4,18 @@
 \alias{fit}
 \title{Fit Specified Model to Simulated Data}
 \usage{
-fit(spec, param, y, se_type = "QMLE", ...)
+fit(
+  spec,
+  param,
+  y,
+  se_type = "QMLE",
+  tiktak = TRUE,
+  tiktak_opts = list(n = 250L, N = 10L, thin = 5L, reltol = 0.001, lead_solver_opts =
+    SLSAGARCH::nloptr_slsqp_options(maxtime = 0.35), lag_solver_opts =
+    SLSAGARCH::nloptr_slsqp_options(maxtime = 0.35/2), a = 2, b = 2.5, m = 25L, verbose =
+    FALSE),
+  ...
+)
 }
 \arguments{
 \item{spec}{specification object create by \code{SLSAGARCH::specification}}
@@ -14,6 +25,10 @@ fit(spec, param, y, se_type = "QMLE", ...)
 \item{y}{simulated observations}
 
 \item{se_type}{method for calculating the standard errors}
+
+\item{tiktak}{boolean indicating whether to use \code{SLSAGARCH::tiktak}}
+
+\item{tiktak_opts}{list of options to pass to \code{SLSAGARCH::tiktak}}
 
 \item{...}{additional arguments passed to \code{SLSAGARCH::estimate}}
 }

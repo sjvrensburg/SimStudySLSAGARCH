@@ -9,6 +9,11 @@ fit_many(
   param,
   ymat,
   se_type = "QMLE",
+  tiktak = TRUE,
+  tiktak_opts = list(n = 250L, N = 10L, thin = 5L, reltol = 0.001, lead_solver_opts =
+    SLSAGARCH::nloptr_slsqp_options(maxtime = 0.35), lag_solver_opts =
+    SLSAGARCH::nloptr_slsqp_options(maxtime = 0.35/2), a = 2, b = 2.5, m = 25L, verbose =
+    FALSE),
   label = sim_lab(n = nrow(ymat), lambda = param["lambda"], rho = param["rho"]),
   strategy = "sequential",
   nchunks = 100,
@@ -25,6 +30,10 @@ fit_many(
 \item{ymat}{matrix of simulated observations}
 
 \item{se_type}{method for calculating the standard errors}
+
+\item{tiktak}{boolean indicating whether to use \code{SLSAGARCH::tiktak}}
+
+\item{tiktak_opts}{list of options to pass to \code{SLSAGARCH::tiktak}}
 
 \item{label}{a label used to identify the simulation}
 
