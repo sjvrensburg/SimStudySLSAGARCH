@@ -15,6 +15,7 @@
 #' @export
 #' 
 dgp <- function(spec, param, n, R, seed, burn.in = 25000L, nthreads = 4L, ...) {
+  param <- unlist(param)
   # Simulate the innovations
   z <- matrix(data = SLSAGARCH2::rdist(
     dist = spec$distribution, n = R * (n + burn.in), ...), ncol = R)
@@ -54,6 +55,7 @@ dgp <- function(spec, param, n, R, seed, burn.in = 25000L, nthreads = 4L, ...) {
 #' @examples
 #' 
 fit <- function(spec, param, y, se_type = "QMLE", ...) {
+  param <- unlist(param)
   status <- rep(-1, spec$k)
   elapsed <- parhat <- se <- rep(NA, spec$k)
 
@@ -70,7 +72,7 @@ fit <- function(spec, param, y, se_type = "QMLE", ...) {
     se <- SLSAGARCH2:::vcov.fitted(est_model, type = se_type) |>
       diag() |>
       sqrt()
-  })
+  }, silent = TRUE)
 
   # Create the data frame
   dplyr::tibble(
