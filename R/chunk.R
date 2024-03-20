@@ -13,4 +13,7 @@
 #' @examples
 #'  chunk(1:30, 6)
 
-chunk <- function(x, n) split(x, cut(seq_along(x), n, labels = FALSE))
+chunk <- function(x, n) {
+    stopifnot(n > 1, n < length(x))
+    split(x, cut(seq_along(x), n, labels = FALSE))
+}

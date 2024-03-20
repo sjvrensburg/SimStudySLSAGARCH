@@ -3,7 +3,7 @@
 #' Generates observations from the specified model with
 #' hyperbolic secant distributed innovations.
 #'
-#' @param spec specification object create by `SLSAGARCH::specification`
+#' @param spec specification object create by `SLSAGARCH2::specification`
 #' @param param true parameters of the DGP
 #' @param n sample size
 #' @param R number of Monte Carlo replications
@@ -13,38 +13,25 @@
 #'
 #' @return An n x R matrix of simulated observations.
 #' @export
-#'
-#' @examples
-#' # Create the model specification
-#' spec <- specification(type = "S")
-#' # True parameter values
-#' param0 <- c(h0 = 1, omega = 0.1, alpha = 0.075, beta = 0.85, lambda = 1, rho = 0.75)
-#' #   Set the initial conditional volatility equal to the unconditional volatility.
-#' param0[1] <- SLSAGARCH:::unconditional.specification(spec, param0)
-#' # Simulate 10000 series, each of length 500
-#' dgp(spec, param0, n = 500, R = 10000, seed = 20240127, nthreads = 10L)
-dgp <- function(spec, param, n, R, seed, burn.in = 25000L, nthreads = 4L) {
+#' 
+dgp <- function(spec, param, n, R, seed, burn.in = 25000L, nthreads = 4L, ...) {
+  param <- unlist(param)
   # Simulate the innovations
-  z <- prhs(n = n + burn.in, m = R, seed = seed,
-            numThreads = nthreads)
+  z <- matrix(data = SLSAGARCH2::rdist(
+    dist = spec$distribution, n = R * (n + burn.in), ...), ncol = R)
 
   # Extract the parameters
-  theta <- SLSAGARCH:::expand_par(spec = spec, x = param)
-  h0 <- SLSAGARCH:::unconditional.specification(spec, param)
-  theta <- theta[-1]
+  theta <- SLSAGARCH2:::expand_par(spec = spec, x = param)
 
   # Pass the innovations to simulate
-  ngrain <- ceiling(R / nthreads)
   res <- switch(
     spec$type,
-    "a" = SLSAGARCH:::lstParallelGenerate(
-      dblH0 = h0, matZ = z, vecParam = theta,
-      intModel = 0L, intGrainSize = ngrain,
-      intNumThreads = nthreads),
-    "s" = SLSAGARCH:::lstParallelGenerate(
-      dblH0 = h0, matZ = z, vecParam = theta,
-      intModel = 1L, intGrainSize = ngrain,
-      intNumThreads = nthreads)
+    "a" = SLSAGARCH2:::lstParallelGenerate(
+      Z = z, param = theta, model = 0L,
+      dist = spec$dist_id, nthreads = nthreads),
+    "s" = SLSAGARCH2:::lstParallelGenerate(
+      Z = z, param = theta, model = 1L,
+      dist = spec$dist_id, nthreads = nthreads)
   )
 
   # Extract the data
@@ -53,65 +40,39 @@ dgp <- function(spec, param, n, R, seed, burn.in = 25000L, nthreads = 4L) {
 
 #' Fit Specified Model to Simulated Data
 #'
-#' This is a simple wrapper around `SLSAGARCH::estimate` that
+#' This is a simple wrapper around `SLSAGARCH2::estimate` that
 #' produces a tibble suitably for further analysis.
 #'
-#' @param spec specification object create by `SLSAGARCH::specification`
+#' @param spec specification object create by `SLSAGARCH2::specification`
 #' @param param true parameters of the DGP
 #' @param y simulated observations
 #' @param se_type method for calculating the standard errors
-#' @param tiktak boolean indicating whether to use `SLSAGARCH::tiktak`
-#' @param tiktak_opts list of options to pass to `SLSAGARCH::tiktak`
-#' @param ... additional arguments passed to `SLSAGARCH::estimate`
+#' @param ... additional arguments passed to `SLSAGARCH2::estimate`
 #'
 #' @return A tibble with estimates
 #' @export
 #'
 #' @examples
-#' # Create the model specification
-#' spec <- specification(type = "S")
-#' # True parameter values
-#' param0 <- c(h0 = 1, omega = 0.1, alpha = 0.075, beta = 0.85, lambda = 1, rho = 0.75)
-#' #   Set the initial conditional volatility equal to the unconditional volatility.
-#' param0[1] <- SLSAGARCH:::unconditional.specification(spec, param0)
-#' # Simulate 10000 series, each of length 500
-#' Y <- dgp(spec, param0, n = 500, R = 10000, seed = 20240127, nthreads = 10L)
-#' fit(spec, param0, Y[, 1])
-fit <- function(spec, param, y, se_type = "QMLE", tiktak = TRUE,
-                tiktak_opts = list(
-                  n = 250L, N = 10L, thin = 5L,
-                  reltol = 1e-03,
-                  lead_solver_opts = SLSAGARCH::nloptr_slsqp_options(maxtime = 0.35),
-                  lag_solver_opts = SLSAGARCH::nloptr_slsqp_options(maxtime = 0.35 / 2),
-                  a = 2, b = 2.5, m = 25L, verbose = FALSE),
-                ...) {
+#' 
+fit <- function(spec, param, y, se_type = "QMLE", ...) {
+  param <- unlist(param)
   status <- rep(-1, spec$k)
   elapsed <- parhat <- se <- rep(NA, spec$k)
 
   try(expr = {
     # Estimate the model
-    if (tiktak) {
-      est_model <- SLSAGARCH::tiktak(
-        y = y, spec = spec, n = tiktak_opts$n, N = tiktak_opts$N,
-        thin = tiktak_opts$thin, reltol = tiktak_opts$reltol,
-        lead_solver_opts = tiktak_opts$lead_solver_opts,
-        lag_solver_opts = tiktak_opts$lag_solver_opts,
-        a = tiktak_opts$a, b = tiktak_opts$b, m = tiktak_opts$m,
-        verbose = tiktak_opts$verbose, ...)
-    } else {
-      est_model <- SLSAGARCH::estimate(spec, x = y, ...)
-    }
+    est_model <- SLSAGARCH2::estimate(spec, x = y, ...)
 
     # Status
     status <- rep(est_model$status, spec$k)
     elapsed <- rep(est_model$elapsed, spec$k)
 
     # Extract the coefficients and standard errors
-    parhat <- SLSAGARCH:::coef.fitted(est_model)
-    se <- SLSAGARCH:::vcov.fitted(est_model, type = se_type) |>
+    parhat <- SLSAGARCH2:::coef.fitted(est_model)
+    se <- SLSAGARCH2:::vcov.fitted(est_model, type = se_type) |>
       diag() |>
       sqrt()
-  })
+  }, silent = TRUE)
 
   # Create the data frame
   dplyr::tibble(
@@ -123,15 +84,13 @@ fit <- function(spec, param, y, se_type = "QMLE", tiktak = TRUE,
 
 #' Fit Many
 #'
-#' @param spec specification object create by `SLSAGARCH::specification`
+#' @param spec specification object create by `SLSAGARCH2::specification`
 #' @param param true parameters of the DGP
 #' @param ymat matrix of simulated observations
 #' @param se_type method for calculating the standard errors
-#' @param tiktak boolean indicating whether to use `SLSAGARCH::tiktak`
-#' @param tiktak_opts list of options to pass to `SLSAGARCH::tiktak`
 #' @param label a label used to identify the simulation
 #' @param strategy evaluation function (or name of it) to use for resolving a future. If NULL, then the current strategy is returned.
-#' @param nchunks the number of realisations to pass to each thread
+#' @param nchunks controls the number of realisations to pass to each thread
 #' @param .errorhandling specifies how a task evaluation error should be handled. If the value is "stop", then execution will be stopped via the stop function if an error occurs. If the value is "remove", the result for that task will not be returned, or passed to the .combine function. If it is "pass", then the error object generated by task evaluation will be included with the rest of the results. It is assumed that the combine function (if specified) will be able to deal with the error object. The default value is "stop".
 #' @param verbose logical flag enabling verbose messages
 #' @param ...
@@ -149,24 +108,8 @@ fit <- function(spec, param, y, se_type = "QMLE", tiktak = TRUE,
 #' @export
 #'
 #' @examples
-#' # Create the model specification
-#' spec <- specification(type = "S")
-#' # True parameter values
-#' param0 <- c(h0 = 1, omega = 0.1, alpha = 0.075, beta = 0.85, lambda = 1, rho = 0.75)
-#' #   Set the initial conditional volatility equal to the unconditional volatility.
-#' param0[1] <- SLSAGARCH:::unconditional.specification(spec, param0)
-#' # Simulate 10000 series, each of length 500
-#' Y <- dgp(spec, param0, n = 500, R = 10000, seed = 20240127, nthreads = 10L)
-#' fit_many(spec, param0, Y, strategy = "multisession", nchunks = 100)
-#' # if you want to see a progress bar...
-#' progressr::with_progress(fit_many(spec, param0, Y, strategy = "multisession", nchunks = 100))
-fit_many <- function(spec, param, ymat, se_type = "QMLE", tiktak = TRUE,
-                     tiktak_opts = list(
-                       n = 250L, N = 10L, thin = 5L,
-                       reltol = 1e-03,
-                       lead_solver_opts = SLSAGARCH::nloptr_slsqp_options(maxtime = 0.35),
-                       lag_solver_opts = SLSAGARCH::nloptr_slsqp_options(maxtime = 0.35 / 2),
-                       a = 2, b = 2.5, m = 25L, verbose = FALSE),
+#' 
+fit_many <- function(spec, param, ymat, se_type = "QMLE",
                      label = sim_lab(
                        n = nrow(ymat), lambda = param["lambda"],
                        rho = param["rho"]),
@@ -190,9 +133,8 @@ fit_many <- function(spec, param, ymat, se_type = "QMLE", tiktak = TRUE,
     ymat_i <- ymat[, idx]
     out_i <- foreach::foreach(
       j = 1:ncol(ymat_i), .combine = "rbind", .inorder = FALSE,
-      .options.future = list(seed = TRUE)) %do% {
-        res <- fit(spec, param, ymat_i[, j], se_type,
-                   tiktak = tiktak, tiktak_opts = tiktak_opts, ...)
+      .options.future = list(seed = TRUE)) %dofuture% {
+        res <- fit(spec, param, ymat_i[, j], se_type, ...)
         res$sample <- idx[j]
         res$nobs <- nrow(ymat_i)
         res

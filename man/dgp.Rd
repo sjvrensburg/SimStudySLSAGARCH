@@ -4,10 +4,10 @@
 \alias{dgp}
 \title{Data Generating Process}
 \usage{
-dgp(spec, param, n, R, seed, burn.in = 25000L, nthreads = 4L)
+dgp(spec, param, n, R, seed, burn.in = 25000L, nthreads = 4L, ...)
 }
 \arguments{
-\item{spec}{specification object create by \code{SLSAGARCH::specification}}
+\item{spec}{specification object create by \code{SLSAGARCH2::specification}}
 
 \item{param}{true parameters of the DGP}
 
@@ -27,14 +27,4 @@ An n x R matrix of simulated observations.
 \description{
 Generates observations from the specified model with
 hyperbolic secant distributed innovations.
-}
-\examples{
-# Create the model specification
-spec <- specification(type = "S")
-# True parameter values
-param0 <- c(h0 = 1, omega = 0.1, alpha = 0.075, beta = 0.85, lambda = 1, rho = 0.75)
-#   Set the initial conditional volatility equal to the unconditional volatility.
-param0[1] <- SLSAGARCH:::unconditional.specification(spec, param0)
-# Simulate 10000 series, each of length 500
-dgp(spec, param0, n = 500, R = 10000, seed = 20240127, nthreads = 10L)
 }

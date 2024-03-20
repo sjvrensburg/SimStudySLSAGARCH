@@ -4,21 +4,10 @@
 \alias{fit}
 \title{Fit Specified Model to Simulated Data}
 \usage{
-fit(
-  spec,
-  param,
-  y,
-  se_type = "QMLE",
-  tiktak = TRUE,
-  tiktak_opts = list(n = 250L, N = 10L, thin = 5L, reltol = 0.001, lead_solver_opts =
-    SLSAGARCH::nloptr_slsqp_options(maxtime = 0.35), lag_solver_opts =
-    SLSAGARCH::nloptr_slsqp_options(maxtime = 0.35/2), a = 2, b = 2.5, m = 25L, verbose =
-    FALSE),
-  ...
-)
+fit(spec, param, y, se_type = "QMLE", ...)
 }
 \arguments{
-\item{spec}{specification object create by \code{SLSAGARCH::specification}}
+\item{spec}{specification object create by \code{SLSAGARCH2::specification}}
 
 \item{param}{true parameters of the DGP}
 
@@ -26,27 +15,12 @@ fit(
 
 \item{se_type}{method for calculating the standard errors}
 
-\item{tiktak}{boolean indicating whether to use \code{SLSAGARCH::tiktak}}
-
-\item{tiktak_opts}{list of options to pass to \code{SLSAGARCH::tiktak}}
-
-\item{...}{additional arguments passed to \code{SLSAGARCH::estimate}}
+\item{...}{additional arguments passed to \code{SLSAGARCH2::estimate}}
 }
 \value{
 A tibble with estimates
 }
 \description{
-This is a simple wrapper around \code{SLSAGARCH::estimate} that
+This is a simple wrapper around \code{SLSAGARCH2::estimate} that
 produces a tibble suitably for further analysis.
-}
-\examples{
-# Create the model specification
-spec <- specification(type = "S")
-# True parameter values
-param0 <- c(h0 = 1, omega = 0.1, alpha = 0.075, beta = 0.85, lambda = 1, rho = 0.75)
-#   Set the initial conditional volatility equal to the unconditional volatility.
-param0[1] <- SLSAGARCH:::unconditional.specification(spec, param0)
-# Simulate 10000 series, each of length 500
-Y <- dgp(spec, param0, n = 500, R = 10000, seed = 20240127, nthreads = 10L)
-fit(spec, param0, Y[, 1])
 }
