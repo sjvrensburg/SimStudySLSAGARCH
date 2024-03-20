@@ -1,10 +1,6 @@
 ## usethis namespace: start
-#' @import RcppEigen
-#' @import SLSAGARCH
+#' @import SLSAGARCH2
 #' @importFrom dplyr bind_rows
-#' @importFrom Rcpp sourceCpp
-#' @importFrom RcppParallel RcppParallelLibs
-#' @importFrom SLSAGARCH specification
-#' @useDynLib SimStudySLSAGARCH, .registration = TRUE
+#' @importFrom SLSAGARCH2 specification
 ## usethis namespace: end
 NULL

@@ -1,25 +1,20 @@
 # Specification
-sls_sech_spec <- SLSAGARCH::specification(type = "S")
+sls_sech_spec <- SLSAGARCH2::specification(type = "S", distribution = "sech")
 usethis::use_data(sls_sech_spec, overwrite = TRUE)
 
 # Parameters
 # We select omega such that hbar = h0 = 1.
 parameters <- expand.grid(
-  h0 = 1, omega = 1,
-  alpha = 0.075, beta = 0.85,
+  hbar = 1, alpha = 0.075, beta = 0.85,
   lambda = c(0, 0.5, 1),
   rho = c(0, 0.25, 0.75)
 )
-P <- apply(parameters, 1, function(x) {
-  SLSAGARCH:::persistence.specification(sls_sech_spec, x)
-})
-parameters[, 2] <- 1 - P
 usethis::use_data(parameters, overwrite = TRUE)
 
 # Datasets
 #   These are quite large, so we will store them as fst files.
 seed <- 20240127L
-R <- 10000
+R <- 5000
 n <- c(250, 500, 750, 1000)
 
 scenario_01 <- foreach::foreach(n_i = n, .combine = "rbind") %do% {
