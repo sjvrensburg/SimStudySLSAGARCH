@@ -46,21 +46,7 @@ estimate_scenario <- function(
       return(res)
     })
   )
-
-  cat(str(ests))
-
-  # Estimate the models
-  # ests <- foreach::foreach(i = 1:length(obs), .combine = "bind_rows") %do% {
-  #   mat <- obs[[i]]
-  #   message(sprintf("\tStarting %d/%d\t--\t%s", i, length(obs),
-  #                   format(Sys.time(), "%d %b %Y, %H:%M")))
-  #   res <- fit_many(spec, param = as.vector(parameters[scenario, ]),
-  #                   ymat = mat, se_type = se_type,
-  #                   strategy = strategy, ...)
-  #   message(sprintf("\tCompleted %d/%d\t--\t%s", i, length(obs),
-  #                   format(Sys.time(), "%d %b %Y, %H:%M")))
-  #   res
-  # }
+  
   ests$true <- ests$true |> unlist()
   ests <- ests |>
     dplyr::as_tibble() |>
